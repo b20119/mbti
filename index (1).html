@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>어린이를 위한 MBTI - 가나디와 함께하는 성향 검사</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FFF9E6;
+            --main-color: #FFB74D;
+            --main-dark: #F57C00;
+            --text-color: #4A3B32;
+            --white: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Gaegu', cursive, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--white);
+            border: 6px solid var(--main-color);
+            border-radius: 30px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes happyDance {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        .animated-puppy {
+            font-size: 80px;
+            display: inline-block;
+            margin: 15px 0;
+            animation: bounce 2s infinite ease-in-out;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--main-dark);
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: #7D6B5D;
+        }
+
+        button {
+            background-color: var(--main-color);
+            color: var(--white);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px #F57C00;
+            transition: all 0.1s ease;
+        }
+
+        button:active {
+            box-shadow: 0 2px #F57C00;
+            transform: translateY(4px);
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .progress-container {
+            width: 100%;
+            background-color: #EEDEC9;
+            border-radius: 20px;
+            margin: 20px 0;
+            height: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #FF8A65;
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+            border-radius: 20px;
+        }
+
+        .cheer-message {
+            font-size: 1.3rem;
+            color: var(--main-dark);
+            font-weight: bold;
+            height: 30px;
+            margin-bottom: 10px;
+        }
+
+        .question-box {
+            font-size: 1.7rem;
+            font-weight: bold;
+            margin: 25px 0;
+            line-height: 1.4;
+            min-height: 80px;
+            word-break: keep-all;
+        }
+
+        .slider-wrapper {
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #6D5D51;
+        }
+
+        .slider-labels span {
+            width: 45%;
+            background: #F5EBE0;
+            padding: 8px;
+            border-radius: 15px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .side-emoji {
+            font-size: 2.5rem;
+        }
+
+        .custom-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 20px;
+            border-radius: 10px;
+            background: #EEDEC9;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--main-dark);
+            border: 4px solid var(--white);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .result-title {
+            font-size: 3.5rem;
+            color: var(--main-dark);
+            margin: 15px 0;
+        }
+
+        .result-char {
+            font-size: 1.6rem;
+            background: #FFF3E0;
+            padding: 15px;
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 2px dashed var(--main-color);
+        }
+
+        .result-char span {
+            font-weight: bold;
+            color: #D84315;
+        }
+
+        .more-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0288D1;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-bottom: 2px solid #0288D1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="start-screen" class="screen active">
+            <h1>어린이를 위한 MBTI 검사</h1>
+            <p class="subtitle">귀여운 가나디와 함께 나의 진짜 모습을 찾으러 가볼까요? 🐾</p>
+            <div class="animated-puppy" id="intro-puppy">🐶</div>
+            <br><br>
+            <button onclick="startTest()">출발하기! 🚀</button>
+        </div>
+
+        <div id="test-screen" class="screen">
+            <div class="cheer-message" id="cheer-box">가나디가 우리 친구를 기다리고 있어요!</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="animated-puppy" id="test-puppy">🐶</div>
+            
+            <div class="question-box" id="question-text">질문을 불러오는 중이에요...</div>
+            
+            <div class="slider-wrapper">
+                <div class="slider-labels">
+                    <span id="label-left">아니요</span>
+                    <span id="label-right">좋아요</span>
+                </div>
+                <div class="slider-container">
+                    <span class="side-emoji">👎</span>
+                    <input type="range" min="-2" max="2" value="0" class="custom-slider" id="mbti-slider" oninput="updatePuppyExpression(this.value)">
+                    <span class="side-emoji">👍</span>
+                </div>
+            </div>
+            
+            <button onclick="nextQuestion()">다음 질문 🐾</button>
+        </div>
+
+        <div id="result-screen" class="screen">
+            <h1>🎉 나의 성격 유형 결과 🎉</h1>
+            <div class="result-title" id="mbti-type">ESTJ</div>
+            <div class="animated-puppy" id="result-puppy" style="animation: happyDance 1.5s infinite ease-in-out;">🐕</div>
+            
+            <div class="result-char" id="friend-char">
+                나와 닮은 애니메이션 주인공: <span id="char-name">불러오는 중...</span>
+            </div>
+            
+            <p style="font-size:1.3rem; color:#6D5D51;">친구들과 가나디 결과를 서로 비교해 보세요!</p>
+            <a href="https://www.16personalities.com/ko/%EC%84%B1%EA%B2%A9-%EC%9C%A0%ED%98%95%EB%B3%84-%ED%8A%B9%EC%A7%95" target="_blank" class="more-link">성격 특징 더 자세히 알아보기 👀</a>
+            <br><br>
+            <button onclick="restartTest()" style="background-color: #81C784; box-shadow: 0 6px #388E3C;">다시 하기 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { type: 'EI', text: "집에서 혼자 장난감을 가지고 노는 것보다 놀이터에서 친구들과 노는 게 훨씬 좋아요!", left: "혼자가 편해", right: "친구가 좋아" },
+            { type: 'EI', text: "우리 반이나 유치원에 새로운 친구가 오면 내가 먼저 다가가서 인사를 건네고 싶어요!", left: "부끄러워요", right: "먼저 인사할래" },
+            { type: 'EI', text: "주말에는 집에 가만히 있는 것보다 가족들이랑 밖에 나가서 뛰노는 게 더 신나요!", left: "집이 더 좋아", right: "나가는게 신나" },
+            { type: 'EI', text: "선생님이 질문을 하시고 발표할 사람을 찾으실 때, 나도 모르게 손을 번쩍 들게 돼요!", left: "생각만 할래요", right: "손 번쩍 들기" },
+            { type: 'EI', text: "내 생일 파티를 할 때 아주 많은 친구들이 우리 집에 다 같이 놀러 와주면 정말 행복해요!", left: "조금만 올래", right: "많이 오면 좋아" },
+            { type: 'EI', text: "처음 보는 모르는 친구들이 노는 곳에 가도 금방 같이 섞여서 재밌게 놀 수 있어요!", left: "지켜볼래요", right: "같이 놀자 말해" },
+            { type: 'EI', text: "슬프거나 기쁜 일이 생기면 머릿속으로 생각하기보다 친구나 엄마에게 바로 조잘조잘 말해요!", left: "혼자 생각할래", right: "빨리 얘기할래" },
+            { type: 'EI', text: "친구들과 다 같이 모여서 시끌벅적하게 단체 게임을 할 때 온몸에 힘이 불끈 솟아나요!", left: "조용히 놀래", right: "시끌벅적 신나" },
+
+            { type: 'SN', text: "레고나 블록을 가지고 놀 때, 내 마음대로 만들기보다 설명서 그림에 적힌 대로 똑같이 만들어요!", left: "내 맘대로 뚝딱", right: "설명서 똑같이" },
+            { type: 'SN', text: "하늘에 떠 있는 구름을 보면서 '우주선이나 괴물 모양 아닐까?' 하고 상상하는 걸 좋아해요!", left: "그냥 구름인걸요", right: "진짜 우주선 같아" },
+            { type: 'SN', text: "선생님이 동화책을 읽어주실 때, 다음 장에는 어떤 신기한 이야기가 나올지 미리 생각해요!", left: "그냥 들을래요", right: "상상하게 돼요" },
+            { type: 'SN', text: "내가 만약 투명인간이 되거나 마법을 부릴 수 있게 된다면 어떨지 자주 떠올려요!", left: "그런건 없어요", right: "맨날 상상해요" },
+            { type: 'SN', text: "도화지에 그림을 그릴 때 실제 있는 나무나 집보다 상상 속에 있는 마법 마을을 그리고 싶어요!", left: "진짜 있는 것", right: "상상 속의 그림" },
+            { type: 'SN', text: "장난감이나 로봇은 장난감 상자에 적힌 원래 규칙대로 가지고 노는 게 가장 올바르다고 믿어요!", left: "새로운 놀이법", right: "원래 방법대로" },
+            { type: 'SN', text: "우주선이 블랙홀에 빨려 들어가면 어떻게 될까? 같은 신비로운 생각을 하면 시간 가는 줄 몰라요!", left: "별로 생각 안 해요", right: "진짜 궁금해요!" },
+
+            { type: 'TF', text: "친구가 가다가 넘어져서 울 때 '많이 아파?' 걱정하기보다 '어쩌다 넘어진 거야?' 이유가 더 궁금해요!", left: "아프겠다 토닥토닥", right: "왜 넘어진거야?" },
+            { type: 'TF', text: "만화 영화나 동화책을 볼 때 슬픈 장면이 나오면 나도 모르게 가슴이 찡하고 눈물이 날 것 같아요!", left: "눈물 안 나요", right: "마음이 아파요" },
+            { type: 'TF', text: "친구가 멋진 옷을 입고 오거나 머리를 자르고 오면 엄청 크게 리액션하며 예쁘다고 말해줘요!", left: "그냥 평범해요", right: "우와 진짜 최고야" },
+            { type: 'TF', text: "친구가 속상해서 훌쩍훌쩍 울고 있으면 그 이유를 묻지 않고 그냥 꼬옥 안아주고 싶어요!", left: "왜 우는지 질문", right: "토닥토닥 위로하기" },
+            { type: 'TF', text: "자동차나 로봇, 기계들이 어떤 원리로 착착 움직이는지 과학책을 보거나 설명 듣는 걸 좋아해요!", left: "조금 지루해요", right: "진짜 재미있어요" },
+            { type: 'TF', text: "친구랑 다툼이나 말싸움이 생기면 무작정 화내기보다 누구 잘못인지 똑똑하게 따져보고 싶어요!", left: "속상하고 슬퍼요", right: "잘잘못 따지기" },
+            { type: 'TF', text: "부모님이 칭찬해 주실 때 '너 참 착하다'라는 따뜻한 말 한마디가 선물보다 훨씬 기분 좋아요!", left: "장난감이 더 좋아", right: "말 한마디가 최고" },
+
+            { type: 'JP', text: "가지고 놀던 인형이나 로봇, 블록은 다 놀고 나면 항상 원래 서랍에 스스로 잘 정리해요!", left: "나중에 치울래", right: "지금 바로 척척" },
+            { type: 'JP', text: "내일 유치원이나 학교에 갈 때 챙겨야 할 알림장이나 가방 준비물을 전날 밤에 미리 확인해요!", left: "아침에 챙겨요", right: "밤에 미리 챙겨요" },
+            { type: 'JP', text: "오늘 주말 하루 동안 몇 시에 어떤 놀이를 하고 쉴지 머릿속으로 순서를 정해두는 편이에요!", left: "그때그때 생각해요", right: "미리 정해두요" },
+            { type: 'JP', text: "원래 하려던 놀이나 약속이 갑자기 다른 걸로 바뀌어 버리면 기분이 답답하고 짜증나요!", left: "다 괜찮아요!", right: "바뀌는 건 싫어요" },
+            { type: 'JP', text: "내 책상이나 놀이방 물건들이 줄을 맞춰서 예쁘게 정리되어 있을 때 마음이 편안해져요!", left: "어질러져도 좋아", right: "바르게 정리가 좋아" },
+            { type: 'JP', text: "해야 할 숙제나 학습지가 있으면 미루지 않고 정해진 시간에 딱 앉아서 다 끝마치고 놀아요!", left: "실컷 놀고 할래", right: "다 끝내고 놀래" },
+            { type: 'JP', text: "소풍이나 여행을 가기 전날 밤, 내일 입을 옷이나 모자를 미리 방바닥에 준비해두고 잠을 자요!", left: "아침에 골라요", right: "미리 꺼내둬요" },
+            { type: 'JP', text: "종이접기나 그리기 활동을 할 때, 처음부터 끝까지 순서대로 차근차근 틀리지 않게 완성하고 싶어요!", left: "내 느낌대로 접어", right: "순서대로 똑바르게" }
+        ];
+
+        const animationCharacters = {
+            'ESTJ': '포켓몬스터의 지우 (리더십 넘치고 부지런한 멋진 대장님)',
+            'ESTP': '뽀로로의 크롱 (장난기 가득하고 모험을 좋아하는 개구쟁이)',
+            'ESFJ': '브레드 이발소의 초코 (친구들을 꼼꼼히 챙겨주는 친절한 도우미)',
+            'ESFP': '뽀롱뽀롱 뽀로로 (언제나 신나고 주목받는 인기 만점 주인공)',
+            'ENTJ': '라이온 킹의 심바 (용감하게 친구들을 이끄는 멋진 아기 사자)',
+            'ENTP': '도라에몽의 퉁퉁이 (호기심과 모험심이 가득한 골목대장)',
+            'ENFJ': '날아라 호빵맨 (어려운 친구를 보면 절대 그냥 지나치지 않는 영웅)',
+            'ENFP': '네모바지 스폰지밥 (긍정 에너지가 넘치고 매일 싱글벙글한 친구)',
+            'ISTJ': '로보카 폴리의 폴리 (규칙을 잘 지키고 꼼꼼한 바른생활 대장)',
+            'ISTP': '신비아파트의 최강림 (말은 적지만 행동으로 친구를 지켜주는 멋쟁이)',
+            'ISFJ': '디즈니의 신데렐라 (조용하고 묵묵하게 주변을 잘 도와주는 요정)',
+            'ISFP': '인어공주 에리얼 (예술과 자연을 사랑하고 다정한 마음씨의 소유자)',
+            'INTJ': '명탐정 코난 (두뇌 회전이 빠르고 똑 부러지는 꼬마 천재 박사님)',
+            'INTP': '겨울왕국의 엘사 (혼자만의 생각과 신비로운 연구를 좋아하는 마법사)',
+            'INFJ': '쿵푸팬더의 우그웨이 사부 (친구들의 마음을 다독여주는 지혜로운 멘토)',
+            'INFP': '인사이드 아웃의 슬픔이 (마음이 따뜻하고 감수성이 엄청 풍부한 요정)'
+        };
+
+        let currentIdx = 0;
+        let scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+
+        const puppyExpressions = {
+            "-2": "😢 (훌쩍훌쩍)",
+            "-1": "😕 (으응~?)",
+            "0": "🐶 (헤헤~)",
+            "1": "😀 (반짝반짝!)",
+            "2": "😆 (개신남!!!)"
+        };
+
+        const cheerMessages = [
+            "우와! 대단해요! 가나디가 우리 친구 말을 경청하고 있어요! 🐾",
+            "벌써 이만큼이나 풀다니! 가나디 꼬리가 멈추지 않아요! 🐕",
+            "우와, 거의 다 왔어요! 마지막까지 힘차게 달려가 봐요! 🚀"
+        ];
+
+        function startTest() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('test-screen').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentIdx];
+            document.getElementById('question-text').innerText = `Q${currentIdx + 1}. ${q.text}`;
+            document.getElementById('label-left').innerText = q.left;
+            document.getElementById('label-right').innerText = q.right;
+            
+            document.getElementById('mbti-slider').value = 0;
+            updatePuppyExpression(0);
+
+            const progress = (currentIdx / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            if (currentIdx === 0) {
+                document.getElementById('cheer-box').innerText = cheerMessages[0];
+            } else if (currentIdx === 10) {
+                document.getElementById('cheer-box').innerText = cheerMessages[1];
+                document.getElementById('test-puppy').style.animation = "happyDance 1s infinite";
+            } else if (currentIdx === 20) {
+                document.getElementById('cheer-box').innerText = cheerMessages[2];
+                document.getElementById('test-puppy').innerText = "🐩";
+            }
+        }
+
+        function updatePuppyExpression(val) {
+            document.getElementById('test-puppy').innerText = puppyExpressions[val].split(" ")[0];
+            if(val == 2 || val == 1) {
+                document.getElementById('test-puppy').style.animation = "happyDance 0.5s infinite";
+            } else if(val == -2 || val == -1) {
+                document.getElementById('test-puppy').style.animation = "wiggle 0.5s infinite";
+            } else {
+                document.getElementById('test-puppy').style.animation = "bounce 2s infinite ease-in-out";
+            }
+        }
+
+        function nextQuestion() {
+            const val = parseInt(document.getElementById('mbti-slider').value);
+            const q = questions[currentIdx];
+            
+            scores[q.type] += val;
+
+            currentIdx++;
+            if (currentIdx < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('test-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+
+            let mbti = "";
+            mbti += (scores.EI >= 0) ? "E" : "I";
+            mbti += (scores.SN >= 0) ? "S" : "N";
+            mbti += (scores.TF >= 0) ? "F" : "T"; 
+            mbti += (scores.JP >= 0) ? "J" : "P";
+
+            document.getElementById('mbti-type').innerText = mbti;
+            document.getElementById('char-name').innerText = animationCharacters[mbti] || "멋진 꿈나무 어린이 친구";
+            document.getElementById('result-puppy').innerText = "🦮🏆";
+        }
+
+        function restartTest() {
+            currentIdx = 0;
+            scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+            document.getElementById('result-screen').classList.remove('active');
+            document.getElementById('start-screen').classList.add('active');
+            document.getElementById('intro-puppy').innerText = "🐶";
+        }
+    </script>
+</body>
+</html>
