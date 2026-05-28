@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>어린이를 위한 MBTI - 강아지와 함께하는 성향 검사</title>
+    <!-- 가독성이 우수하고 친근한 구글 감자꽃(Gamja Flower) 및 나눔고딕(Nanum Gothic) 웹 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FFFDF4;
+            --main-color: #FFB74D;
+            --main-dark: #E65100;
+            --text-color: #3E2723;
+            --white: #FFFFFF;
+            --sub-light: #FFF3E0;
+            --accent-blue: #0288D1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Nanum Gothic', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--white);
+            border: 6px solid var(--main-color);
+            border-radius: 35px;
+            padding: 35px;
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Gamja Flower', cursive, sans-serif;
+            font-size: 3rem;
+            color: var(--main-dark);
+            margin-bottom: 12px;
+            word-break: keep-all;
+        }
+
+        p.subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: #6D4C41;
+            font-weight: bold;
+        }
+
+        button {
+            font-family: 'Gamja Flower', cursive, sans-serif;
+            background-color: var(--main-color);
+            color: var(--white);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 45px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px #F57C00;
+            transition: all 0.1s ease;
+        }
+
+        button:active {
+            box-shadow: 0 2px #F57C00;
+            transform: translateY(4px);
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* 진행도 바 스타일 */
+        .progress-container {
+            width: 100%;
+            background-color: #EFEBE9;
+            border-radius: 20px;
+            margin: 20px 0;
+            height: 25px;
+            overflow: hidden;
+            border: 2px solid #D7CCC8;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #FF7043;
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+            border-radius: 20px;
+        }
+
+        .cheer-message {
+            font-size: 1.3rem;
+            color: var(--main-dark);
+            font-weight: bold;
+            height: 35px;
+            margin-bottom: 5px;
+        }
+
+        /* 강아지 애니메이션 설정 */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        @keyframes happyDance {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.15) rotate(6deg); }
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .animated-puppy {
+            font-size: 90px;
+            display: inline-block;
+            margin: 15px 0;
+            animation: bounce 2s infinite ease-in-out;
+            transition: transform 0.2s ease;
+        }
+
+        .question-box {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin: 25px 0;
+            line-height: 1.5;
+            min-height: 80px;
+            word-break: keep-all;
+            padding: 0 10px;
+        }
+
+        /* 100단계 정밀 슬라이더 디자인 */
+        .slider-wrapper {
+            margin: 35px 0;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .slider-labels span {
+            width: 45%;
+            background: #F5F5F5;
+            padding: 10px;
+            border-radius: 20px;
+            border: 2px solid #E0E0E0;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .side-emoji {
+            font-size: 2.5rem;
+            user-select: none;
+        }
+
+        .custom-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 22px;
+            border-radius: 15px;
+            background: #E0D4C3;
+            outline: none;
+            cursor: pointer;
+            border: 2px solid #C4B49F;
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--main-dark);
+            border: 4px solid var(--white);
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+        }
+
+        /* 결과 창 스타일 */
+        .result-title {
+            font-family: 'Gamja Flower', cursive, sans-serif;
+            font-size: 4.5rem;
+            color: var(--main-dark);
+            margin: 10px 0;
+            letter-spacing: 2px;
+        }
+
+        .result-char {
+            font-size: 1.5rem;
+            background: var(--sub-light);
+            padding: 18px;
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 3px dashed var(--main-color);
+            line-height: 1.5;
+        }
+
+        .result-char span {
+            font-weight: bold;
+            color: #D84315;
+        }
+
+        /* 중간값 경고 전용 디자인 */
+        .warning-box {
+            background: #FFEBEE;
+            border: 3px dashed #EF5350;
+            border-radius: 25px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .warning-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #C62828;
+            line-height: 1.6;
+            word-break: keep-all;
+        }
+
+        /* 내장형 상세 성향 및 궁합 정보 창 */
+        .explain-box {
+            background: #FBFBEF;
+            border-radius: 20px;
+            padding: 22px;
+            margin-top: 25px;
+            text-align: left;
+            border: 2px solid #CCFFD8;
+            display: none;
+        }
+
+        .explain-box.active {
+            display: block;
+        }
+
+        .explain-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #00796B;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #B2DFDB;
+            padding-bottom: 6px;
+        }
+
+        .explain-item {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            line-height: 1.5;
+            list-style-type: '⭐ ';
+            margin-left: 20px;
+        }
+
+        /* 궁합 영역 디자인 */
+        .chemistry-section {
+            margin-top: 18px;
+            padding-top: 15px;
+            border-top: 2px dashed #B2DFDB;
+        }
+
+        .chem-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #E64A19;
+            margin-bottom: 10px;
+        }
+
+        .chem-block {
+            display: inline-block;
+            background: #FFFFFF;
+            border: 2px solid #FFCCBC;
+            border-radius: 12px;
+            padding: 10px 15px;
+            width: 47%;
+            margin-right: 2%;
+            vertical-align: top;
+        }
+        .chem-block:last-child { margin-right: 0; }
+
+        .chem-type {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #D84315;
+            margin-bottom: 4px;
+        }
+
+        .chem-text {
+            font-size: 0.95rem;
+            color: #5D4037;
+            line-height: 1.4;
+        }
+
+        .view-btn {
+            background-color: #4DB6AC;
+            box-shadow: 0 6px #00796B;
+            margin-top: 15px;
+            font-size: 1.4rem;
+            padding: 10px 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 1. 시작 스크린 -->
+        <div id="start-screen" class="screen active">
+            <h1>어린이를 위한 MBTI 검사</h1>
+            <p class="subtitle">귀여운 강아지와 함께 나의 진짜 모습을 찾으러 가볼까요? 🐾</p>
+            <div class="animated-puppy" id="intro-puppy">🐶</div>
+            <br><br>
+            <button onclick="startTest()">출발하기! 🚀</button>
+        </div>
+
+        <!-- 2. 검사 진행 스크린 -->
+        <div id="test-screen" class="screen">
+            <div class="cheer-message" id="cheer-box">강아지가 우리 친구의 선택을 궁금해해요!</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="animated-puppy" id="test-puppy">🐶</div>
+            
+            <div class="question-box" id="question-text">질문을 매칭하는 중입니다...</div>
+            
+            <div class="slider-wrapper">
+                <div class="slider-labels">
+                    <span id="label-left">그렇지 않다</span>
+                    <span id="label-right">정말 그렇다</span>
+                </div>
+                <div class="slider-container">
+                    <span class="side-emoji">👎</span>
+                    <input type="range" min="0" max="100" value="50" class="custom-slider" id="mbti-slider" oninput="handleSliderChange(this.value)">
+                    <span class="side-emoji">👍</span>
+                </div>
+            </div>
+            
+            <button onclick="nextQuestion()">다음 질문 🐾</button>
+        </div>
+
+        <!-- 3. 결과 스크린 (정상 도출 및 경고 통합) -->
+        <div id="result-screen" class="screen">
+            <!-- 정상 판정단 레이아웃 -->
+            <div id="normal-result-layout">
+                <h1>🎉 나의 성격 결과 🎉</h1>
+                <div class="result-title" id="mbti-type">ESTJ</div>
+                <div class="animated-puppy" id="result-puppy" style="animation: happyDance 1.4s infinite ease-in-out;">🐕</div>
+                
+                <div class="result-char" id="friend-char">
+                    나와 닮은 유행 캐릭터:<br><span id="char-name">불러오는 중...</span>
+                </div>
+                
+                <button class="view-btn" onclick="toggleExplanation()">내 특징과 친구 궁합 보기 👀</button>
+                
+                <div class="explain-box" id="explain-box">
+                    <div class="explain-title" id="exp-title">성격 특징</div>
+                    <div id="exp-details"></div>
+                    
+                    <!-- 자체 제작 궁합 연동 컴포넌트 -->
+                    <div class="chemistry-section">
+                        <div class="chem-title">🤝 친구와의 MBTI 궁합 알아보기</div>
+                        <div class="chem-block">
+                            <div class="chem-type" style="color: #2E7D32;">❤️ 내 베프 성향</div>
+                            <div class="chem-text" id="chem-good">로딩 중...</div>
+                        </div>
+                        <div class="chem-block">
+                            <div class="chem-type" style="color: #C62828;">⚡ 서로 양보가 필요한 성향</div>
+                            <div class="chem-text" id="chem-bad">로딩 중...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 중간값(50점) 과다 선택 경고단 레이아웃 -->
+            <div id="warning-result-layout" style="display: none;">
+                <h1>⚠️ 앗! 강아지가 알쏭달쏭해요 ⚠️</h1>
+                <div class="animated-puppy">🤔❓</div>
+                <div class="warning-box">
+                    <div class="warning-text">
+                        대부분 질문에 한가운데(중간값)를 선택하셨군요!<br>
+                        강아지가 우리 친구의 진짜 멋진 성격을 정확히 파악하기 어려워하고 있어요.<br><br>
+                        "조금 더 나에게 가까운 쪽"으로 솔직하게 고민하고 밀어서 다시 한 번 열심히 검사를 마쳐볼까요? 🐾
+                    </div>
+                </div>
+            </div>
+            
+            <br><br>
+            <button onclick="restartTest()" style="background-color: #81C784; box-shadow: 0 6px #388E3C;">다시 하기 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // 무작위로 섞인 순서의 아동 맞춤형 15문항 세트 (EI, SN, TF, JP 고루 분산 혼합)
+        const questions = [
+            { type: 'SN', text: "하늘에 떠 있는 구름을 보면서 '우주선이나 날아다니는 상상의 괴물 같다!'는 재미있는 상상을 자주 해요.", left: "그냥 구름인걸요", right: "우와! 상상돼요" },
+            { type: 'EI', text: "우리 반에 전학 온 새로운 친구가 보이면 부끄러워하기보단 내가 먼저 다가가서 반갑게 인사를 건네고 싶어요.", left: "다가오길 기다려요", right: "먼저 달려갈래요" },
+            { type: 'TF', text: "친구가 길을 가다 넘어져서 아파서 울고 있으면, 왜 넘어졌는지 이유를 묻지 않고 그냥 먼저 토닥여주고 싶어요.", left: "이유를 질문해요", right: "먼저 꼭 안아줘요" },
+            { type: 'JP', text: "가지고 놀던 로봇, 인형, 블록들은 놀이가 다 끝나면 나중에 미루지 않고 항상 원래 상자에 스스로 정리해요.", left: "나중에 치울래요", right: "지금 바로 척척" },
+            { type: 'EI', text: "집 안에서 혼자 조용히 장난감을 만지는 것보다 놀이터나 체육관에서 친구들과 다 같이 소리 지르며 노는 게 신나요.", left: "방에서 놀래요", right: "뛰노는 게 최고" },
+            { type: 'SN', text: "장난감 블록 조립 세트를 선물 받으면, 내 멋대로 성을 쌓기보단 설명서 책의 순서대로 정밀하게 똑같이 만들어요.", left: "내 맘대로 조립", right: "설명서대로 조립" },
+            { type: 'JP', text: "주말 토요일이나 일요일 하루를 보낼 때 몇 시에 어떤 애니메이션을 보고 언제 숙제를 할지 순서를 미리 정해놔요.", left: "생각나는 대로", right: "시간표 짜기" },
+            { type: 'TF', text: "만화 영화나 동화책, 슬픈 유튜브 영상을 시청하다가 주인공이 힘들어하면 나도 모르게 마음 찡해지곤 해요.", left: "눈물 안 나요", right: "같이 울컥해요" },
+            { type: 'EI', text: "주말 휴일에 집안 소파에 가만히 누워 쉬는 것보다 부모님과 함께 야외 공원으로 피크닉을 나가 뛰노는 게 신나요.", left: "집이 더 편해요", right: "나가는 게 활기차요" },
+            { type: 'SN', text: "내가 만약 마법사가 되어 투명 인간이 되거나, 타임머신을 타고 미래로 날아가는 기분 좋은 상상을 해봐요.", left: "그런 건 불가능해요", right: "매일 꿈꿔요" },
+            { type: 'TF', text: "친구랑 장난감을 고장 냈거나 말싸움 다툼이 벌어지면, 슬퍼하기보단 누구 잘못이 더 큰지 똑똑하게 따져야 속이 시원해요.", left: "속상함이 먼저예요", right: "잘잘못 따져봐요" },
+            { type: 'JP', text: "내일 해야 할 학교 준비물이나 알림장 숙제를 밤에 미리 책가방 속에 완벽하게 챙겨두고 잠자리에 들어요.", left: "아침에 챙겨요", right: "전날 밤 준비완료" },
+            { type: 'SN', text: "보드게임이나 스마트폰 게임 규칙을 바꿀 때, 기존 규칙을 철저히 고수하고 어기지 않는 게 정의롭고 맞다고 봐요.", left: "새로운 룰이 좋아", right: "원래 룰이 좋아" },
+            { type: 'EI', text: "선생님이 수업 중간에 어려운 문제를 내고 발표할 사람을 찾으실 때 손을 번쩍 들며 당당하게 소리치고 싶어요.", left: "마음속으로만 생각", right: "손 번쩍 발표!" },
+            { type: 'TF', text: "친구가 발을 다쳐 훌쩍거리면 '많이 아프겠다'고 슬퍼하기보단 '어쩌다 그렇게 발을 부딪친 거야?' 원인이 궁금해요.", left: "위로를 먼저 해줘요", right: "이유부터 물어봐요" }
+        ];
+
+        // 요즘 어린이·초등학생 대상 최고 유행 애니메이션/게임 캐릭터 및 특성+궁합 매칭 데이터베이스
+        const childMbtiData = {
+            'ESTJ': {
+                char: '캐치! 티니핑의 로미 (리더십 있고 책임감 강한 대장 공주님) 👑',
+                title: '부지런한 반장 스타일 (ESTJ)',
+                desc: ['스스로 할 일을 계획표대로 꼼꼼히 끝내요.', '규칙과 약속을 어기는 것을 정말 싫어해요.', '친구들 모임에서 똑 부러지게 역할을 정해줍니다.'],
+                good: 'ISFP (내 이야기를 다정하게 잘 들어주는 단짝)',
+                bad: 'INFP (생각이 너무 달라서 서로 약속 조율이 필요한 친구)'
+            },
+            'ESTP': {
+                char: '브레드 이발소의 브레드 피트 (자신감 뿜뿜 행동파 이발사 박사) 💈',
+                title: 'E에너제틱 모험왕 (ESTP)',
+                desc: ['활동적이고 운동이나 몸으로 노는 놀이를 잘해요.', '문제가 생기면 고민하기보다 몸으로 직접 해결해요.', '지루한 설명서 읽기는 패스하고 바로 시작합니다.'],
+                good: 'ISFJ (꼼꼼하게 나를 챙겨주는 친절한 매니저)',
+                bad: 'INFJ (생각이 깊어 내 장난을 가끔 오해할 수 있는 친구)'
+            },
+            'ESFJ': {
+                char: '산리오의 헬로키티 (주변을 행복하게 만드는 다정한 수호신) 🐱',
+                title: '친구 사랑 사랑방 대장 (ESFJ)',
+                desc: ['슬퍼하는 친구가 있으면 제일 먼저 다가가 손을 잡아요.', '어른들이나 선생님 말씀에 호응을 매우 잘해줍니다.', '칭찬 스티커를 받으면 세상을 다 가진 듯 기뻐해요.'],
+                good: 'ISTP (무뚝뚝해 보여도 내 곁을 지키는 든든한 친구)',
+                bad: 'INTP (원리를 따져서 내 감정을 서운하게 할 수 있는 친구)'
+            },
+            'ESFP': {
+                char: '포켓몬스터의 피카츄 (언제나 에너지가 넘치는 백만볼트 인기쟁이) ⚡',
+                title: '분위기 메이커 골목대장 (ESFP)',
+                desc: ['웃음이 엄청 많고 친구들을 깜짝 놀라게 웃겨줘요.', '노래, 춤, 발표 등 주인공이 되는 것을 아주 신나해요.', '정리정돈하기나 한자리 가만히 있기는 답답해요.'],
+                good: 'ISTJ (물건이나 숙제를 똑똑하게 빌려주는 바른 친구)',
+                bad: 'INTJ (너무 진지하고 조용해서 다가가기 어려운 친구)'
+            },
+            'ENTJ': {
+                char: '신비아파트의 구하리 (귀신 앞에서도 용감하게 동생을 지키는 리더) 💥',
+                title: '용감무쌍 호랑이 대장 (ENTJ)',
+                desc: ['어려운 모둠 과제가 생겨도 겁내지 않고 이끌어가요.', '자기가 정한 목표 점수는 끝까지 해내는 근성이 있어요.', '똑똑하고 당당해서 친구들의 부러움을 사요.'],
+                good: 'INFP (내 리더십을 믿고 조용히 서포트해주는 단짝)',
+                bad: 'ISFP (나의 강한 피드백에 마음의 상처를 입을 수 있는 친구)'
+            },
+            'ENTP': {
+                char: '짱구는 못말려의 신짱구 (천재적인 창의력과 말괄량이 박사) 짱구',
+                title: '말괄량이 천재 발명가 (ENTP)',
+                desc: ['머릿속에 기발하고 특이한 아이디어가 24시간 가득해요.', '호기심이 강해서 퀴즈나 새로운 게임을 무척 즐겨요.', '매일 반복되는 지루한 숙제나 학습지는 지겨워해요.'],
+                good: 'INFJ (나의 엉뚱한 상상력도 진지하게 이해해주는 천재 친구)',
+                bad: 'ISFJ (규칙을 강조해서 나와 자주 투덜거릴 수 있는 친구)'
+            },
+            'ENFJ': {
+                char: '포켓몬스터의 지우 (포켓몬들의 마음을 하나로 묶는 의리 영웅) 🧢',
+                title: '다정한 정의의 보안관 (ENFJ)',
+                desc: ['약한 친구를 괴롭히는 행동을 보면 절대 그냥 못 넘어가요.', '반 전체가 싸우지 않고 사이좋게 지내는 리더가 돼요.', '남을 도와주고 고맙다는 말을 들으면 힘이 불끈 솟아요.'],
+                good: 'INTP (논리적인 해결책을 주어 지혜를 더해주는 단짝)',
+                bad: 'ISTP (감정 표현이 너무 적어서 나를 섭섭하게 만드는 친구)'
+            },
+            'ENFP': {
+                char: '인사이드 아웃의 기쁨이 (어떤 상황도 초긍정으로 바꾸는 활력소) ☀️',
+                title: '반짝반짝 아이디어 요정 (ENFP)',
+                desc: ['새로운 상상의 날개를 펼치며 매일 새로운 놀이를 발명해요.', '정이 엄청나게 많고 주변 사람들에게 예쁜 말을 잘해요.', '가끔 가방이나 우산을 교실에 두고 오는 칠칠치 못한 귀여움이 있어요.'],
+                good: 'INTJ (생각을 차분하게 정리해 주는 족집게 멘토)',
+                bad: 'ISTJ (너무 딱딱하게 규칙만 따져 잔소리처럼 들리는 친구)'
+            },
+            'ISTJ': {
+                char: '산리오의 시나모롤 (하늘을 날아다니는 몽상가 아기 강아지) 🐶',
+                title: '꼼꼼한 바른생활 모범생 (ISTJ)',
+                desc: ['내 책상과 연필꽂이가 줄 맞춰 있으면 마음이 편안해요.', '숙제 제출일이나 준비물을 완벽하게 챙기는 등 성실해요.', '갑자기 시간표나 놀이 약속이 깨지면 당황스러워요.'],
+                good: 'ESFP (나의 정적인 일상에 재미와 활기를 불어넣는 친구)',
+                bad: 'ENFP (계획성이 너무 없고 어지럽혀서 조율이 필요함)'
+            },
+            'ISTP': {
+                char: '신비아파트의 최강림 (말없이 어둠 속에서 칼을 휘두르는 멋쟁이) 🗡️',
+                title: '조용한 조립 자판기 (ISTP)',
+                desc: ['말수는 적지만 위급할 때 행동으로 착 도와줍니다.', '손재주가 좋아 레고나 과학 키트 조립의 1인자입니다.', '남들이 나에게 이래라저래라 참견하는 것을 아주 싫어해요.'],
+                good: 'ESFJ (무뚝뚝한 내 마음도 사르르 녹여주는 친절 요정)',
+                bad: 'ENFJ (표현을 강요해서 생각의 조율이 필요한 친구)'
+            },
+            'ISFJ': {
+                char: '캐치! 티니핑의 하츄핑 (언제나 공주 곁을 지키는 든든한 사랑둥이) 💕',
+                title: '천사 같은 수호천사 (ISFJ)',
+                desc: ['내 의견을 강하게 내기보다 친구들 배려를 훌륭히 해요.', '눈치가 빨라 다른 사람이 속상한지 금방 알아채요.', '맡은 1인 1역할 청소나 임무를 묵묵히 끝마칩니다.'],
+                good: 'ESTP (우유부단한 내 결정을 시원하게 내려주는 모험가)',
+                bad: 'ENTP (너무 유행과 파격적인 변화를 시도해 불안하게 함)'
+            },
+            'ISFP': {
+                char: '산리오의 폼폼푸린 (누워서 뒹굴거리는 것을 좋아하는 힐링 강아지) 🍮',
+                title: '말랑말랑 평화주의자 (ISFP)',
+                desc: ['미술, 그리기, 음악, 이쁜 도구 모으기를 조용히 좋아해요.', '다투는 게 싫어서 친구가 우기면 보통 양보해 줘요.', '주말에 침대에 누워 만화책을 볼 때 행복을 느낍니다.'],
+                good: 'ESTJ (부지런하게 나를 깨워주고 챙겨주는 든든한 친구)',
+                bad: 'ENTJ (성공과 속도를 너무 강조해 나를 숨 막히게 할 수 있음)'
+            },
+            'INTJ': {
+                char: '명탐정 코난 (진실은 언제나 하나! 천재 꼬마 탐정) 🔍',
+                title: 'AI 똑똑이 박사님 (INTJ)',
+                desc: ['지식 만화책이나 과학책 읽기를 조용히 즐겨요.', '복잡한 보드게임 규칙이나 퍼즐을 빠르게 해독해요.', '혼자서 생각 회로를 돌리는 고독한 시간이 필수적이에요.'],
+                good: 'ENFP (내 차가운 마음에 따뜻한 불꽃을 지피는 호기심 요정)',
+                bad: 'ESFP (생각의 깊이보다 유흥과 말소리가 커서 피곤해함)'
+            },
+            'INTP': {
+                char: '브레드 이발소의 윌크 (우유갑 모양의 열정 연구파 조수) 🧪',
+                title: '아이디어 뱅크 호기심 천재 (INTP)',
+                desc: ['"왜 그럴까?" 컴퓨터나 자연의 원리를 추적하길 잘해요.', '위로나 리액션은 조금 어렵지만 정답이나 꿀팁을 잘 줍니다.', '자기가 꽂힌 로봇이나 게임 데이터 분석엔 전문가 수준입니다.'],
+                good: 'ENFJ (내 마음의 고민을 지혜롭게 공감하고 끌어주는 친구)',
+                bad: 'ESFJ (감정적 호응을 너무 원해서 대화 코드가 꼬일 수 있음)'
+            },
+            'INFJ': {
+                char: '인사이드 아웃의 소심이 (생각과 걱정이 깊은 지혜로운 요정) 🔮',
+                title: '지혜로운 마음 치료사 (INFJ)',
+                desc: ['상상력이 머릿속 우주만큼 깊고 생각의 바다가 넓어요.', '올바르고 착한 가치관을 마음의 중심에 꽉 쥐고 있어요.', '조용하지만 나중에 멋진 소설가나 작가가 될 상상력이 있습니다.'],
+                good: 'ENTP (내 조용한 내면에 엄청난 유쾌함을 주는 번뜩이는 친구)',
+                bad: 'ESTP (너무 직설적이고 거칠게 말해 마음의 금이 갈 수 있음)'
+            },
+            'INFP': {
+                char: '산리오의 시나모롤 (하늘을 날아다니는 몽상가 아기 강아지) ☁️',
+                title: '말랑 감수성 꿈나무 (INFP)',
+                desc: ['집에 있는 애착 인형이나 길가 길고양이와 대화가 가능해요.', '아름다운 동화 속 세계 같은 판타지 상상을 즐겨요.', '마음이 솜사탕처럼 연약해서 작은 꾸중에도 눈물이 핑 돌아요.'],
+                good: 'ENTJ (나약해지기 쉬운 내 마음의 행동 리더십을 주는 대장)',
+                bad: 'ESTJ (너무 규칙과 팩트만 따져 내 몽상을 방해할 수 있음)'
+            }
+        };
+
+        let currentIdx = 0;
+        let scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+        let questionCounts = { EI: 0, SN: 0, TF: 0, JP: 0 };
+        let middleChoiceCount = 0;
+
+        function getPuppyEmoji(val) {
+            if (val <= 15) return "😢"; 
+            if (val <= 40) return "😕"; 
+            if (val <= 60) return "🐶"; 
+            if (val <= 85) return "😀"; 
+            return "😆";               
+        }
+
+        // [오류 수정] 첫 번째 질문 텍스트 출력 누락 해결을 위한 초기 로드 메커니즘
+        function startTest() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('test-screen').classList.add('active');
+            currentIdx = 0;
+            middleChoiceCount = 0;
+            scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+            questionCounts = { EI: 0, SN: 0, TF: 0, JP: 0 };
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentIdx];
+            document.getElementById('question-text').innerText = `Q${currentIdx + 1}. ${q.text}`;
+            document.getElementById('label-left').innerText = q.left;
+            document.getElementById('label-right').innerText = q.right;
+            
+            document.getElementById('mbti-slider').value = 50;
+            handleSliderChange(50);
+
+            const progress = (currentIdx / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            if (currentIdx === 0) {
+                document.getElementById('cheer-box').innerText = "강아지가 우리 친구의 선택을 궁금해해요! 🐾";
+            } else if (currentIdx === 7) {
+                document.getElementById('cheer-box').innerText = "벌써 절반이나 완료! 집중하는 모습이 최고예요! 🐕";
+                document.getElementById('test-puppy').style.animation = "happyDance 1s infinite";
+            } else if (currentIdx === 14) {
+                document.getElementById('cheer-box').innerText = "마지막 단계 완료 직전! 결과를 확인해 볼까요? 🚀";
+                document.getElementById('test-puppy').innerText = "🐩";
+            }
+        }
+
+        function handleSliderChange(val) {
+            const numericVal = parseInt(val);
+            document.getElementById('test-puppy').innerText = getPuppyEmoji(numericVal);
+            
+            if (numericVal >= 61) {
+                document.getElementById('test-puppy').style.animation = "happyDance 0.5s infinite";
+            } else if (numericVal <= 40) {
+                document.getElementById('test-puppy').style.animation = "wiggle 0.5s infinite";
+            } else {
+                document.getElementById('test-puppy').style.animation = "bounce 2s infinite ease-in-out";
+            }
+        }
+
+        function nextQuestion() {
+            const val = parseInt(document.getElementById('mbti-slider').value);
+            const q = questions[currentIdx];
+            
+            if (val >= 45 && val <= 55) {
+                middleChoiceCount++;
+            }
+
+            scores[q.type] += val;
+            questionCounts[q.type]++;
+
+            currentIdx++;
+            if (currentIdx < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('test-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+
+            if (middleChoiceCount >= 12) {
+                document.getElementById('normal-result-layout').style.display = 'none';
+                document.getElementById('warning-result-layout').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('normal-result-layout').style.display = 'block';
+            document.getElementById('warning-result-layout').style.display = 'none';
+
+            let finalEI = scores.EI / questionCounts.EI;
+            let finalSN = scores.SN / questionCounts.SN;
+            let finalTF = scores.TF / questionCounts.TF;
+            let finalJP = scores.JP / questionCounts.JP;
+
+            let mbti = "";
+            mbti += (finalEI >= 50) ? "E" : "I";
+            mbti += (finalSN >= 50) ? "S" : "N";
+            mbti += (finalTF <= 50) ? "T" : "F"; 
+            mbti += (finalJP >= 50) ? "J" : "P";
+
+            document.getElementById('mbti-type').innerText = mbti;
+            
+            const mbtiData = childMbtiData[mbti] || { 
+                char: "우리의 히어로 🌟", 
+                title: "무한한 가능성의 꿈나무 어린이", 
+                desc: ["정해진 틀에 얽매이지 않는 놀라운 개성을 가졌어요!"],
+                good: "모든 착한 친구들",
+                bad: "싸우는 행동을 하는 사람"
+            };
+            
+            document.getElementById('char-name').innerText = mbtiData.char;
+            document.getElementById('result-puppy').innerText = "🦮🏆";
+
+            document.getElementById('exp-title').innerText = `⭐ 요즘 뜨는 [${mbtiData.title}] 핵심 요약`;
+            let detailsHtml = "";
+            mbtiData.desc.forEach(item => {
+                detailsHtml += `<div class="explain-item">${item}</div>`;
+            });
+            document.getElementById('exp-details').innerHTML = detailsHtml;
+            
+            document.getElementById('chem-good').innerText = mbtiData.good;
+            document.getElementById('chem-bad').innerText = mbtiData.bad;
+            
+            document.getElementById('explain-box').classList.remove('active');
+        }
+
+        function toggleExplanation() {
+            const box = document.getElementById('explain-box');
+            box.classList.toggle('active');
+        }
+
+        function restartTest() {
+            currentIdx = 0;
+            middleChoiceCount = 0;
+            scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+            questionCounts = { EI: 0, SN: 0, TF: 0, JP: 0 };
+            
+            document.getElementById('result-screen').classList.remove('active');
+            document.getElementById('start-screen').classList.add('active');
+            document.getElementById('intro-puppy').innerText = "🐶";
+        }
+    </script>
+</body>
+</html>
